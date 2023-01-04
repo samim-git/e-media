@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
+<<<<<<< HEAD
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -33,5 +34,8 @@
       <module name="shipment-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
+=======
+    </annotationProcessing>
+>>>>>>> af9a24e (no data)
   </component>
 </project>
