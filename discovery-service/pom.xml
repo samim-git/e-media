@@ -66,6 +66,7 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<finalName>discovery-service</finalName>
 				</configuration>
 			</plugin>
 		</plugins>
