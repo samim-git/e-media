@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2022.0.0</spring-cloud.version>
+<!--		<start-class>com.sam.emedia.discovery.DiscoveryServiceApplication</start-class>-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -60,6 +61,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+<!--					<mainClass>com.sam.emedia.discovery.DiscoveryServiceApplication</mainClass>-->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -68,6 +70,13 @@
 					</excludes>
 					<finalName>discovery-service</finalName>
 				</configuration>
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<goals>-->
+<!--							<goal>repackage</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
 			</plugin>
 		</plugins>
 	</build>

@@ -1,0 +1,123 @@
+
+version: "3"
+volumes:
+  prometheus_data: {}
+services:
+  discovery-service:
+    image: discovery-service:latest
+#    build: discoveeryservicce/
+    ports:
+      - "8761:8761"
+    networks:
+      - e-media-net
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+
+  orders-service:
+    image: orders-service
+    #    build: discoveeryservicce/
+#    entrypoint:
+#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
+#      - JAVA_OPTS=
+#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
+    ports:
+      - "7071:7071"
+    depends_on:
+      - discovery-service
+    links:
+      - discovery-service
+    networks:
+      - e-media-net
+    build:
+      context: ./orders-service
+      dockerfile: Dockerfile
+
+  products-service:
+    image: products-service
+    #    build: discoveeryservicce/
+#    entrypoint:
+#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
+#      - JAVA_OPTS=
+#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
+    ports:
+      - "7072:7072"
+    depends_on:
+      - discovery-service
+
+    links:
+      - discovery-service
+
+    networks:
+      - e-media-net
+    build:
+      context: ./products-service
+      dockerfile: Dockerfile
+
+  shipment-service:
+    image: shipment-service
+    #    build: discoveeryservicce/
+#    entrypoint:
+#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
+#      - JAVA_OPTS=
+#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
+    ports:
+      - "7073:7073"
+    depends_on:
+      - discovery-service
+    links:
+      - discovery-service
+    networks:
+      - e-media-net
+    build:
+      context: ./shipment-service
+      dockerfile: Dockerfile
+
+#  user-service:
+#    image: user-service
+#    #    build: discoveeryservicce/
+##    entrypoint:
+##      - JAVA_OPS=
+##      - DEUREKA_SERVER="http://discovery-server:8761/eureka"
+#    ports:
+#      - "7074:7074"
+#    depends_on:
+#      - discovery-service
+#    networks:
+#      - e-media-net
+#    build:
+#      context: ./gateway-service
+#      dockerfile: Dockerfile
+  gateway-service:
+    image: gateway-service
+#    build: eaurekaclient/
+    entrypoint:
+#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
+      - JAVA_OPTS=
+        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
+
+#    environment:
+#      SPRING_APPLICATION_JSON: '{"eureka":{"client":{"serviceUrl":{"defaultZone":"http://eureka-server:8761/eureka"}}}}'
+    ports:
+      - "7070:7070"
+    depends_on:
+      - discovery-service
+      - orders-service
+      - products-service
+      - shipment-service
+#      - user-service
+    links:
+      - discovery-service
+    networks:
+      - e-media-net
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+
+
+
+
+
+networks:
+  e-media-net:
+
