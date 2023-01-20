@@ -9,12 +9,18 @@ import java.time.Instant;
 @Setter
 @Getter
 @Entity
-@Table(name = "users", schema = "eMedia_db", catalog = "")
+@Table(name = "users", schema = "eMedia_db")
 public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
     private int id;
+
+    @Column(name = "created")
+    Instant created;
+
+    @Column(name = "updated")
+    Instant updated;
     @Column(name = "name")
     private String name;
     @Column(name = "email")
@@ -28,8 +34,9 @@ public class User {
     private String phone;
     @Column(name = "address")
     private String address;
-    @Column(name = "created")
-    private Instant created = Instant.now();
+
+
+    /**NOTE: 1: customer, 2: manager, 3: employee"**/
     @Column(name = "user_type")
     private Integer userType;
 }
