@@ -29,6 +29,7 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<Object> registerUser(@RequestBody User user) {
+        System.out.println("user registration");
         return ResponseEntity.status(CREATED).body(userService.registerUser(user));
     }
 
@@ -37,15 +38,16 @@ public class UserController {
         HashMap<String,Object> resMap = new HashMap<>();
         resMap.put("success", true);
         if(userId != 0)
-            resMap.put("user",userService.getUserById(userId));
+            resMap.put("user", userService.getUserById(userId));
         else {
-            resMap.put("users",userService.getUsers());
+            resMap.put("users", userService.getUsers());
         }
         return ResponseEntity.ok(resMap);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> login(@RequestBody UserLogin login) {
+
         return ResponseEntity.status(CREATED).body(userService.loginUser(login));
     }
 
