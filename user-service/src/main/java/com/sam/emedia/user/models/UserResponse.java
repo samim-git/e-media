@@ -25,7 +25,6 @@ public class UserResponse {
                 .email(user.getEmail())
                 .profile(user.getProfile())
                 .phone(user.getPhone())
-                .address(user.getAddress())
                 .created(user.getCreated())
                 .userType(user.getUserType())
                 .build();

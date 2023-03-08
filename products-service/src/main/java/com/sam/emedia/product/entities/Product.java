@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product", schema = "eMedia_db", catalog = "")
+@Table(name = "products", schema = "eMedia_products_db", catalog = "")
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -28,8 +28,18 @@ public class Product {
     private String name;
     @Column(name = "price")
     private double price;
+    @Column(name = "count")
+    //shows the total amounts of this product in stocks
+    int count;
 
-    @OneToMany(mappedBy = "product")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryId")
+    ProductCategory productCategory;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImages> productImages;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductReview> productReviews;
 }
 
