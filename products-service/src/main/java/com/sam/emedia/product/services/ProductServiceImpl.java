@@ -5,9 +5,9 @@ import com.sam.emedia.product.models.ResponseObject;
 import com.sam.emedia.product.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ResponseObject geAllProducts(Pageable pageable) {
-        return null;
+        return ResponseObject.builder().success(true).data(productRepository.findAll(pageable).get()).build();
     }
 
     @Override

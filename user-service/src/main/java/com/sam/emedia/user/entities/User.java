@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Setter
 @Getter
@@ -32,11 +33,11 @@ public class User {
     private String profile = "";
     @Column(name = "phone")
     private String phone;
-    @Column(name = "address")
-    private String address;
-
 
     /**NOTE: 1: customer, 2: manager, 3: employee"**/
     @Column(name = "user_type")
     private Integer userType;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses;
 }

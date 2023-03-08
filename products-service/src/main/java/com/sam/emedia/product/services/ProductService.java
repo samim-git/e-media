@@ -2,9 +2,8 @@ package com.sam.emedia.product.services;
 
 import com.sam.emedia.product.entities.Product;
 import com.sam.emedia.product.models.ResponseObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
 
 @Service
 public interface ProductService {
