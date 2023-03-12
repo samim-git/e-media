@@ -1,9 +1,12 @@
 package com.sam.emedia.user.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.ReadOnlyProperty;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -11,17 +14,17 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "addresses", schema = "eMedia_db")
-public class Address {
+public class Address implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
     private int id;
 
     @Column(name = "created")
-    Instant created;
+    Instant created = Instant.now();
 
     @Column(name = "updated")
-    Instant updated;
+    Instant updated = Instant.now();
     @Column(name = "country")
     private String country;
     @Column(name = "city")
@@ -35,9 +38,10 @@ public class Address {
     private String houseNo;
 
     @Column(name = "isDefaultAddress")
-    boolean isDefaultAddress;
+    boolean defaultAddress = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
+    @Getter(AccessLevel.NONE)
     private User user;
 }
