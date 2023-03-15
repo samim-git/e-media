@@ -16,8 +16,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <description>User service for e-Media</description>
     <modules>
-        <module>discovery-service</module>
-        <module>gateway-service</module>
+<!--        <module>discovery-service</module>-->
+<!--        <module>gateway-service</module>-->
 <!--        <module>orders-service</module>-->
 <!--        <module>payment-service</module>-->
         <module>products-service</module>

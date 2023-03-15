@@ -4,19 +4,26 @@ import com.sam.emedia.product.entities.Product;
 import com.sam.emedia.product.models.ResponseObject;
 import com.sam.emedia.product.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/product/")
 public class ProductController {
-    @GetMapping("test")
+
+    @Autowired
+    KafkaTemplate<String, String> kafkaTemplate;
+    @GetMapping("sendMsg")
     public String testMsg(){
-        return "ssfssfdsfffdsffssdfffsf";
+        System.out.println("message will be sent");
+        kafkaTemplate.send("msg_prdct", "Kafka message from product");
+        return "Message has been sent to user";
     }
     final ProductService productService;
     @PostMapping()
