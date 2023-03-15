@@ -1,0 +1,119 @@
+version: "3"
+services:
+  discovery-service:
+    image: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - e-media-net
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    environment:
+      - eureka.client.register-with-eureka=false
+      - eureka.client.fetch-registry=false
+      - eureka.instance.prefer-ip-address=true
+      - management.endpoints.web.exposure.include=*
+      - management.endpoint.health.show-details=always
+
+  orders-service:
+    image: orders-service
+    ports:
+      - "7071:7071"
+    networks:
+      - e-media-net
+    build:
+      context: ./orders-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_orders_db
+      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+    depends_on:
+        - e_media_db
+        - gateway-service
+
+  products-service:
+    image: products-service
+    ports:
+      - "7072:7072"
+    networks:
+      - e-media-net
+    build:
+      context: ./products-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_products_db
+      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+    depends_on:
+      - e_media_db
+      - gateway-service
+
+  shipment-service:
+    image: shipment-service
+    ports:
+      - "7073:7073"
+    networks:
+      - e-media-net
+    build:
+      context: ./shipment-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_shipments_db
+      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+    depends_on:
+      - e_media_db
+      - discovery-service
+      - gateway-service
+
+  user-service:
+    image: user-service
+    ports:
+      - "7074:7074"
+    networks:
+      - e-media-net
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_db
+      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+    depends_on:
+      - e_media_db
+      - discovery-service
+      - gateway-service
+  gateway-service:
+    image: gateway-service
+    environment:
+      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+    ports:
+      - "7070:7070"
+    networks:
+      - e-media-net
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+
+    depends_on:
+      - discovery-service
+      - user-service
+
+
+  e_media_db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=samim
+      - MYSQL_PASSWORD=db@password
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - e-media-net
+
+volumes:
+  db-data:
+
+networks:
+  e-media-net:
+    driver: bridge
+

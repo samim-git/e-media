@@ -1,119 +1,105 @@
-version: "3"
+#Docker commends
+#docker build -t apigateway-layered -f Dockerfile.layered
+#docker buikd -t apigateway -f Dockerfile | docker buikd -t apigateway .
+version: '3'
 services:
-  discovery-service:
-    image: discovery-service
-    ports:
-      - "8761:8761"
-    networks:
-      - e-media-net
-    build:
-      context: ./discovery-service
-      dockerfile: Dockerfile
-    environment:
-      - eureka.client.register-with-eureka=false
-      - eureka.client.fetch-registry=false
-      - eureka.instance.prefer-ip-address=true
-      - management.endpoints.web.exposure.include=*
-      - management.endpoint.health.show-details=always
 
-  orders-service:
-    image: orders-service
-    ports:
-      - "7071:7071"
-    networks:
-      - e-media-net
-    build:
-      context: ./orders-service
-      dockerfile: Dockerfile
+
+  db-products:
+    image: mysql
+    container_name: db-products
+    restart: always
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_orders_db
-      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eMedia_products_db
+      MYSQL_USER: samim
+      MYSQL_PASSWORD: db@password
+    volumes:
+      - ./db-products/data:/var/lib/mysql
+#      - ./db-products/conf.d:/etc/mysql/conf.d
+    ports:
+      - '3307:3307'
+#    expose:
+#      - '3307'
+
+  db-users:
+    image: mysql
+    container_name: db-users
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eMedia_db
+      MYSQL_USER: samim
+      MYSQL_PASSWORD: db@password
+    volumes:
+      - ./db-users/data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - '9411:9411'
+  discovery-service:
+    image: hafizullasamim/em-discovery-service
+    container_name: discovery-service
+    pull_policy: always
+    ports:
+      - '8761:8761'
+#    entrypoint:
+#      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-        - e_media_db
-        - gateway-service
+      - zipkin
+
+  gateway-service:
+    image: hafizullasamim/em-gateway-service
+    container_name: gateway-service
+    pull_policy: always
+    ports:
+      - '7070:7070'
+    expose:
+      - '7070'
+#    entrypoint:
+#      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+      - discovery-service
+  user-service:
+    image: hafizullasamim/em-user-service
+    container_name: user-service
+    pull_policy: always
+    ports:
+      - '7074:7070'
+    expose:
+      - '7074'
+#    entrypoint:
+#      SPRING_DATASOURCE_URL=jdbc:mysql://db-users:3306/eMedia_db
+#      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+      - discovery-service
+      - gateway-service
+      - db-users
 
   products-service:
-    image: products-service
+    image: hafizullasamim/em-products-service
+    container_name: products-service
+    pull_policy: always
     ports:
-      - "7072:7072"
-    networks:
-      - e-media-net
-    build:
-      context: ./products-service
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_products_db
-      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
+      - '7072:7070'
+    expose:
+      - '7072'
+#    entrypoint:
+#      SPRING_DATASOURCE_URL='jdbc:mysql://db-users:3306/eMedia_products_db'
+#      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - e_media_db
-      - gateway-service
-
-  shipment-service:
-    image: shipment-service
-    ports:
-      - "7073:7073"
-    networks:
-      - e-media-net
-    build:
-      context: ./shipment-service
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_shipments_db
-      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
-    depends_on:
-      - e_media_db
+      - zipkin
       - discovery-service
       - gateway-service
-
-  user-service:
-    image: user-service
-    ports:
-      - "7074:7074"
-    networks:
-      - e-media-net
-    build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://e_media_db:3306/eMedia_db
-      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
-    depends_on:
-      - e_media_db
-      - discovery-service
-      - gateway-service
-  gateway-service:
-    image: gateway-service
-    environment:
-      - eureka.client.service-url.default-zone=http://discovery-service:8761/eureka/
-    ports:
-      - "7070:7070"
-    networks:
-      - e-media-net
-    build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
-
-    depends_on:
-      - discovery-service
-      - user-service
+#      - db-users
+      - db-products
 
 
-  e_media_db:
-    image: mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=app
-      - MYSQL_USER=samim
-      - MYSQL_PASSWORD=db@password
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - e-media-net
 
-volumes:
-  db-data:
 
-networks:
-  e-media-net:
-    driver: bridge
 
