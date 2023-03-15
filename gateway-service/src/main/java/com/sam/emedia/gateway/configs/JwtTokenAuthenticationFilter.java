@@ -4,6 +4,7 @@ import com.sam.emedia.gateway.components.JWTComponents;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -25,6 +26,9 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String token = resolveToken(exchange.getRequest());
         if (StringUtils.hasText(token) && !this.tokenProvider.isExpired(token)) {
+            exchange = exchange.mutate().request(
+                    addUserContextToRequest(exchange.getRequest(),
+                            token)).build();
             Authentication authentication = new UsernamePasswordAuthenticationToken("user","123", null);
             return chain.filter(exchange)
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
@@ -38,5 +42,14 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
             return bearerToken.substring(7);
         }
         return null;
+    }
+    private ServerHttpRequest addUserContextToRequest(ServerHttpRequest request, String token) {
+        int userId = (int) tokenProvider.getDataMap(token).get("id");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("userId", String.valueOf(userId));
+        ServerHttpRequest newRequest = request.mutate()
+                .headers(httpHeaders -> httpHeaders.set("X-UserId", String.valueOf(userId)))
+                .build();
+        return newRequest;
     }
 }

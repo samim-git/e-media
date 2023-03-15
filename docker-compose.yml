@@ -1,123 +1,105 @@
-
-version: "3"
-volumes:
-  prometheus_data: {}
+#Docker commends
+#docker build -t apigateway-layered -f Dockerfile.layered
+#docker buikd -t apigateway -f Dockerfile | docker buikd -t apigateway .
+version: '3'
 services:
-  discovery-service:
-    image: discovery-service:latest
-#    build: discoveeryservicce/
-    ports:
-      - "8761:8761"
-    networks:
-      - e-media-net
-    build:
-      context: ./discovery-service
-      dockerfile: Dockerfile
 
-  orders-service:
-    image: orders-service
-    #    build: discoveeryservicce/
-#    entrypoint:
-#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
-#      - JAVA_OPTS=
-#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
+
+  db-products:
+    image: mysql
+    container_name: db-products
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eMedia_products_db
+      MYSQL_USER: samim
+      MYSQL_PASSWORD: db@password
+    volumes:
+      - ./db-products/data:/var/lib/mysql
+#      - ./db-products/conf.d:/etc/mysql/conf.d
     ports:
-      - "7071:7071"
+      - '3307:3307'
+#    expose:
+#      - '3307'
+
+  db-users:
+    image: mysql
+    container_name: db-users
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eMedia_db
+      MYSQL_USER: samim
+      MYSQL_PASSWORD: db@password
+    volumes:
+      - ./db-users/data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - '9411:9411'
+  discovery-service:
+    image: hafizullasamim/em-discovery-service
+    container_name: discovery-service
+    pull_policy: always
+    ports:
+      - '8761:8761'
+#    entrypoint:
+#      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
+      - zipkin
+
+  gateway-service:
+    image: hafizullasamim/em-gateway-service
+    container_name: gateway-service
+    pull_policy: always
+    ports:
+      - '7070:7070'
+    expose:
+      - '7070'
+#    entrypoint:
+#      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
       - discovery-service
-    links:
+  user-service:
+    image: hafizullasamim/em-user-service
+    container_name: user-service
+    pull_policy: always
+    ports:
+      - '7074:7070'
+    expose:
+      - '7074'
+#    entrypoint:
+#      SPRING_DATASOURCE_URL=jdbc:mysql://db-users:3306/eMedia_db
+#      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
       - discovery-service
-    networks:
-      - e-media-net
-    build:
-      context: ./orders-service
-      dockerfile: Dockerfile
+      - gateway-service
+      - db-users
 
   products-service:
-    image: products-service
-    #    build: discoveeryservicce/
+    image: hafizullasamim/em-products-service
+    container_name: products-service
+    pull_policy: always
+    ports:
+      - '7072:7070'
+    expose:
+      - '7072'
 #    entrypoint:
-#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
-#      - JAVA_OPTS=
-#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
-    ports:
-      - "7072:7072"
+#      SPRING_DATASOURCE_URL='jdbc:mysql://db-users:3306/eMedia_products_db'
+#      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
+      - zipkin
       - discovery-service
-
-    links:
-      - discovery-service
-
-    networks:
-      - e-media-net
-    build:
-      context: ./products-service
-      dockerfile: Dockerfile
-
-  shipment-service:
-    image: shipment-service
-    #    build: discoveeryservicce/
-#    entrypoint:
-#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
-#      - JAVA_OPTS=
-#        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
-    ports:
-      - "7073:7073"
-    depends_on:
-      - discovery-service
-    links:
-      - discovery-service
-    networks:
-      - e-media-net
-    build:
-      context: ./shipment-service
-      dockerfile: Dockerfile
-
-#  user-service:
-#    image: user-service
-#    #    build: discoveeryservicce/
-##    entrypoint:
-##      - JAVA_OPS=
-##      - DEUREKA_SERVER="http://discovery-server:8761/eureka"
-#    ports:
-#      - "7074:7074"
-#    depends_on:
-#      - discovery-service
-#    networks:
-#      - e-media-net
-#    build:
-#      context: ./gateway-service
-#      dockerfile: Dockerfile
-  gateway-service:
-    image: gateway-service
-#    build: eaurekaclient/
-    entrypoint:
-#      "eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka"
-      - JAVA_OPTS=
-        - DEUREKA_SERVER="http://discovery-service:8761/eureka"
-
-#    environment:
-#      SPRING_APPLICATION_JSON: '{"eureka":{"client":{"serviceUrl":{"defaultZone":"http://eureka-server:8761/eureka"}}}}'
-    ports:
-      - "7070:7070"
-    depends_on:
-      - discovery-service
-      - orders-service
-      - products-service
-      - shipment-service
-#      - user-service
-    links:
-      - discovery-service
-    networks:
-      - e-media-net
-    build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
+      - gateway-service
+#      - db-users
+      - db-products
 
 
 
 
-
-networks:
-  e-media-net:
 

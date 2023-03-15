@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/product/")
 public class ProductController {
+    @GetMapping("test")
+    public String testMsg(){
+        return "ssfssfdsfffdsffssdfffsf";
+    }
     final ProductService productService;
     @PostMapping()
     public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {

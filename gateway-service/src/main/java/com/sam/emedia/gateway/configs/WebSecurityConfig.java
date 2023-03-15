@@ -15,7 +15,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @RequiredArgsConstructor
 @EnableWebFluxSecurity
 public class WebSecurityConfig {
-    private static final String[] PUBLIC_URLS = {"/user/**", "/eureka/**","/order/test"};
+    private static final String[] PUBLIC_URLS = {"/user/","/user/test","/user/login", "/eureka/**","/order/test"};
     final BasicAuthEntryPoint basicAuthEntryPoint;
     final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
 

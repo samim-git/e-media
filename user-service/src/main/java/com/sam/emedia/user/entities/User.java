@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "users", schema = "eMedia_db")
-public class User {
+public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
