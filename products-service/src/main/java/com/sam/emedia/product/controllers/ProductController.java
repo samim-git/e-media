@@ -1,8 +1,10 @@
 package com.sam.emedia.product.controllers;
 
 import com.sam.emedia.product.entities.Product;
+import com.sam.emedia.product.entities.ProductCategory;
 import com.sam.emedia.product.models.ResponseObject;
 import com.sam.emedia.product.services.ProductService;
+import jakarta.ws.rs.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +45,30 @@ public class ProductController {
         if(responseObject.isSuccess())
             return ResponseEntity.status(HttpStatus.OK).body(responseObject);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseObject);
+    }
+
+    @PostMapping("category")
+    public ResponseEntity<ResponseObject> createCategory(@RequestBody ProductCategory productCategory) {
+        return productService.createProductCategory(productCategory);
+    }
+
+    @GetMapping("category")
+    public ResponseEntity<ResponseObject> getCategories(@RequestBody ProductCategory productCategory) {
+        return productService.getProductCategories();
+    }
+    @GetMapping("category/:categoryId")
+    public ResponseEntity<ResponseObject> getCategoryProducts(@PathParam("categoryId") long categoryId) {
+        return productService.getCategoryProducts(categoryId);
+    }
+
+    @DeleteMapping("category/:categoryId")
+    public ResponseEntity<ResponseObject> deleteProduct(@PathParam("categoryId") long categoryId) {
+        return productService.deleteProduct(categoryId);
+    }
+
+    @PutMapping("category")
+    public ResponseEntity<ResponseObject> updateCategory(@RequestBody ProductCategory productCategory) {
+        return productService.updateProductCategory(productCategory);
     }
 
     @GetMapping("addMockData")

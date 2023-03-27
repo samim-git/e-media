@@ -17,12 +17,12 @@
     <description>User service for e-Media</description>
     <modules>
 <!--        <module>discovery-service</module>-->
-<!--        <module>gateway-service</module>-->
-<!--        <module>orders-service</module>-->
+        <module>gateway-service</module>
+        <module>orders-service</module>
 <!--        <module>payment-service</module>-->
-        <module>products-service</module>
+<!--        <module>products-service</module>-->
 <!--        <module>shipment-service</module>-->
-        <module>user-service</module>
+<!--        <module>user-service</module>-->
     </modules>
     <properties>
         <java.version>17</java.version>
