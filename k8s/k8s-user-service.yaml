@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: hafizullasamim/em-user-service
+          ports:
+            - containerPort: 7074
+          env:
+            - name: MYSQL_HOST
+              value: db-users
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: DB_USER
+              value: samim
+            - name: DB_PASSWORD
+              value: "db@password"
+#            - name: MYSQL_DATABASE
+#              value: eMedia_db
+
+---
+# service for user-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  ports:
+    - name: http
+      port: 7074
+      targetPort: 7074
+  selector:
+    app: user-service
+---
+# deployment for db-users
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-users
+  labels:
+    app: db-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-users
+  template:
+    metadata:
+      labels:
+        app: db-users
+    spec:
+      containers:
+        - image: mysql
+          name: db-users
+          resources: {}
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "db@password"
+            - name: MYSQL_USER
+              value: samim
+            - name: MYSQL_PASSWORD
+              value: "db@password"
+            - name: MYSQL_DATABASE
+              value: eMedia_db
+status: {}
+
+---
+
+# service for db-users
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db-users
+  name: db-users
+spec:
+  selector:
+    app: db-users
+  type: ClusterIP
+  ports:
+    - name: 3306-3306
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+status:
+  loadBalancer: {}

@@ -1,0 +1,153 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: hafizullasamim/em-user-service
+          ports:
+            - containerPort: 7074
+          env:
+            - name: MYSQL_HOST
+              value: user-db-service
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: eMedia_db
+#          env:
+#            - name: DB_URL
+#              value: jdbc:mysql://db-users:3306/eMedia_db
+#            - name: DB_USERNAME
+#              value: root
+#            - name: DB_PASSWORD
+#              value: db@password
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: products-service
+  template:
+    metadata:
+      labels:
+        app: products-service
+    spec:
+      containers:
+        - name: products-service
+          image: hafizullasamim/em-products-service
+          ports:
+            - containerPort: 7072
+          env:
+            - name: DB_URL
+              value: jdbc:mysql://db-products:3307/eMedia_products_db
+            - name: DB_USERNAME
+              value: samim
+            - name: DB_PASSWORD
+              value: db@password
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery-service
+  template:
+    metadata:
+      labels:
+        app: discovery-service
+    spec:
+      containers:
+        - name: discovery-service
+          image: hafizullasamim/em-discovery-service
+          ports:
+            - containerPort: 8761
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+        - name: gateway-service
+          image: hafizullasamim/em-gateway-service
+          ports:
+            - containerPort: 7070
+          env:
+            - name: USER_SERVICE_URL
+              value: http://user-service:7074
+            - name: PRODUCT_SERVICE_URL
+              value: http://products-service:7072
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service:8761
+
+
+
+---
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-db2
+  labels:
+    app: db-users
+spec:
+  selector:
+    matchLabels:
+      app: db-users
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db-users
+    spec:
+      containers:
+        - name: db-users
+          image: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "db@password"
+            - name: MYSQL_DATABASE
+              value: db-users
+          ports:
+            - name: mysql
+              containerPort: 3306
+          volumeMounts:
+            - name: user-db-persistent-storage
+              mountPath: ./db-users/data:/var/lib/mysql
+      volumes:
+        - name: user-db-persistent-storage
+          emptyDir: {}
